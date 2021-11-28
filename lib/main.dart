@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        home: MyHomepage());
+        home: const MyHomepage());
   }
 }
 
@@ -39,9 +39,12 @@ class MyHomepage extends StatefulWidget {
 }
 
 class _MyHomepageState extends State<MyHomepage> {
-  BannerAd bAd = new BannerAd(
+  late BannerAd? _bannerAds;
+
+  void _createBannerAds() {
+    _bannerAds = BannerAd(
       size: AdSize.banner,
-      adUnitId: "ca-app-pub-3940256099942544~3347511713",
+      adUnitId: "ca-app-pub-3940256099942544/6300978111",
       listener: BannerAdListener(onAdLoaded: (Ad ad) {
         print("Ad loaded");
       }, onAdFailedToLoad: (Ad ad, LoadAdError error) {
@@ -50,13 +53,37 @@ class _MyHomepageState extends State<MyHomepage> {
       }, onAdOpened: (Ad ad) {
         print("Ad loaded");
       }),
-      request: AdRequest());
+      request: const AdRequest(),
+    );
+  }
+
+  @override
+  void initState() {
+    _createBannerAds();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Container(
-        child: AdWidget(ad: bAd..load()),
+      appBar: AppBar(
+        title: const Text("Demo Ads App"),
       ),
+      body: const Center(
+        child: Text("Demo Ads App"),
+      ),
+      bottomNavigationBar: _bannerAds == null
+          ? const SizedBox.shrink()
+          : SizedBox(
+              height: _bannerAds?.size.height.toDouble(),
+              width: _bannerAds?.size.width.toDouble(),
+              child: AdWidget(ad: _bannerAds!..load()),
+            ),
     );
   }
 }
